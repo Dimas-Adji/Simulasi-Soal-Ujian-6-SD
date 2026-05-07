@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Kuis Interaktif - 40 Soal Pilihan Ganda</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(145deg, #1e5a8a 0%, #0d3b5e 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: #f9fafc;
+            border-radius: 42px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            padding: 20px 25px 35px;
+            transition: all 0.2s;
+        }
+
+        @keyframes gradientBg {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0d47a1 0%, #1976d2 50%, #2196f3 100%);
+            background-size: 200% 200%;
+            animation: gradientBg 8s ease infinite;
+            color: white;
+            padding: 25px 20px;
+            border-radius: 20px 20px 20px 20px;
+            text-align: center;
+            margin: -20px -25px 25px -25px;
+            box-shadow: 0 8px 20px rgba(13, 71, 161, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></svg>');
+            background-size: 80px 80px;
+            opacity: 0.3;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 12px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.95;
+            font-weight: 300;
+            position: relative;
+        }
+
+        .start-screen, .quiz-screen, .result-screen, .review-screen {
+            display: none;
+        }
+
+        .start-screen.active, .quiz-screen.active, .result-screen.active, .review-screen.active {
+            display: block;
+        }
+
+        .start-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .start-screen h2 {
+            color: #1e5a8a;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .start-screen p {
+            color: #555;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            font-size: 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.35);
+            transition: all 0.3s ease;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(76, 175, 80, 0.45);
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .question-box {
+            background: linear-gradient(145deg, #ffffff, #f5f7fa);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-left: 5px solid #1976d2;
+        }
+
+        .question-number {
+            display: inline-block;
+            background: #1976d2;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            font-size: 17px;
+            color: #333;
+            line-height: 1.7;
+            font-weight: 500;
+        }
+
+        .options {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 18px 20px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .option:hover {
+            border-color: #1976d2;
+            background: #f0f7ff;
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            border-color: #1976d2;
+            background: #e3f2fd;
+        }
+
+        .option.correct {
+            border-color: #4CAF50;
+            background: #e8f5e9;
+        }
+
+        .option.wrong {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+
+        .option-letter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 32px;
+            background: #e0e0e0;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 14px;
+            color: #555;
+            flex-shrink: 0;
+        }
+
+        .option.correct .option-letter {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .option.wrong .option-letter {
+            background: #f44336;
+            color: white;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feedback.correct {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 2px solid #4CAF50;
+        }
+
+        .feedback.wrong {
+            background: #ffebee;
+            color: #c62828;
+            border: 2px solid #f44336;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #1976d2, #1565c0);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-top: 20px;
+            float: right;
+            box-shadow: 0 5px 15px rgba(25, 118, 210, 0.3);
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(25, 118, 210, 0.4);
+        }
+
+        .btn-next:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .result-box {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #f5f7fa, #e8ecf1);
+            margin: 0 auto 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 8px solid #1976d2;
+        }
+
+        .score-value {
+            font-size: 48px;
+            font-weight: 700;
+            color: #1976d2;
+        }
+
+        .score-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .result-message {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .result-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-value.correct { color: #4CAF50; }
+        .stat-value.wrong { color: #f44336; }
+        .stat-value.total { color: #1976d2; }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-review, .btn-restart {
+            padding: 15px 35px;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-review {
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.3);
+        }
+
+        .btn-review:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 152, 0, 0.4);
+        }
+
+        .btn-restart {
+            background: linear-gradient(135deg, #757575, #616161);
+            color: white;
+            box-shadow: 0 5px 15px rgba(117, 117, 117, 0.3);
+        }
+
+        .btn-restart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(117, 117, 117, 0.4);
+        }
+
+        .review-item {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border-left: 5px solid #e0e0e0;
+        }
+
+        .review-item.correct {
+            border-left-color: #4CAF50;
+        }
+
+        .review-item.wrong {
+            border-left-color: #f44336;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .review-number {
+            font-weight: 700;
+            color: #333;
+        }
+
+        .review-status {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .review-status.correct {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .review-status.wrong {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .essay-box {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .essay-box textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s;
+            margin-bottom: 15px;
+        }
+
+        .essay-box textarea:focus {
+            outline: none;
+            border-color: #1976d2;
+        }
+
+        .essay-box textarea:disabled {
+            background: #f5f5f5;
+            cursor: not-allowed;
+        }
+
+        .essay-hint {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 12px 15px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #e65100;
+        }
+
+        .btn-submit-essay {
+            background: linear-gradient(135deg, #1976d2, #1565c0);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            font-size: 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(25, 118, 210, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit-essay:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(25, 118, 210, 0.4);
+        }
+
+        .btn-submit-essay:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .review-essay-answer {
+            background: #f5f5f5;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .review-question {
+            color: #555;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .review-answer {
+            font-size: 14px;
+        }
+
+        .review-answer .label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .review-answer .value.correct {
+            color: #4CAF50;
+            font-weight: 600;
+        }
+
+        .review-answer .value.wrong {
+            color: #f44336;
+        }
+
+        .btn-back {
+            background: linear-gradient(135deg, #1976d2, #1565c0);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            font-size: 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(25, 118, 210, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-back:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(25, 118, 210, 0.4);
+        }
+
+        .student-info {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .student-info input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-top: 8px;
+            transition: border-color 0.3s;
+        }
+
+        .student-info input:focus {
+            outline: none;
+            border-color: #1976d2;
+        }
+
+        .student-info label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px 20px 25px;
+                border-radius: 25px;
+            }
+            
+            .header {
+                margin: -15px -20px 20px -20px;
+                padding: 20px 15px;
+            }
+            
+            .header h1 {
+                font-size: 22px;
+            }
+            
+            .question-box {
+                padding: 18px;
+            }
+            
+            .question-text {
+                font-size: 15px;
+            }
+            
+            .option {
+                padding: 15px;
+                font-size: 14px;
+            }
+            
+            .btn-next {
+                width: 100%;
+                float: none;
+            }
+            
+            .result-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .score-circle {
+                width: 160px;
+                height: 160px;
+            }
+            
+            .score-value {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Simulasi Ujian Bahasa Indonesia</h1>
+            <p>40 Soal Pilihan Ganda</p>
+        </div>
+
+        <!-- Start Screen -->
+        <div class="start-screen active" id="startScreen">
+            <div class="student-info">
+                <label for="studentName">Nama Murid:</label>
+                <input type="text" id="studentName" placeholder="Masukkan nama kamu..." required>
+            </div>
+            <h2>Selamat Datang!</h2>
+            <p>Aplikasi ini akan membantumu berlatih mengerjakan soal ujian.<br>
+            Setiap menjawab soal, kamu akan langsung tahu jawaban yang benar.<br>
+            Kerjakan dengan sungguh-sungguh ya!</p>
+            <button class="btn-start" onclick="startQuiz()">Mulai Kuis</button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div class="quiz-screen" id="quizScreen">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="question-box">
+                <span class="question-number" id="questionNumber">Soal 1 dari 40</span>
+                <div class="question-text" id="questionText"></div>
+            </div>
+            <div class="options" id="options"></div>
+            <div class="feedback" id="feedback"></div>
+            <button class="btn-next" id="btnNext" onclick="nextQuestion()" disabled>Lanjut &rarr;</button>
+            <div style="clear: both;"></div>
+        </div>
+
+        <!-- Result Screen -->
+        <div class="result-screen" id="resultScreen">
+            <div class="result-box">
+                <h2>Hasil Ujian</h2>
+                <div class="score-circle">
+                    <div class="score-value" id="scoreValue">0</div>
+                    <div class="score-label">dari 100</div>
+                </div>
+                <div class="result-message" id="resultMessage"></div>
+                <div class="result-stats">
+                    <div class="stat-item">
+                        <div class="stat-value correct" id="correctCount">0</div>
+                        <div class="stat-label">Benar</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value wrong" id="wrongCount">0</div>
+                        <div class="stat-label">Salah</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value total" id="totalCount">0</div>
+                        <div class="stat-label">Total Soal</div>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn-review" onclick="showReview()">Review Soal</button>
+                    <button class="btn-restart" onclick="restartQuiz()">Ulangi Kuis</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Review Screen -->
+        <div class="review-screen" id="reviewScreen">
+            <h2 style="text-align: center; margin-bottom: 25px; color: #333;">Review Soal dan Jawaban</h2>
+            <div id="reviewList"></div>
+            <div style="text-align: center;">
+                <button class="btn-back" onclick="backToResult()">Kembali ke Hasil</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                no: 1,
+                question: "Kita memulai hidup bersih diawali dari ...... terdekat kita. Caranya dengan membersihkan halaman rumah dari sampah atau kotoran. Kita juga dapat membiasakan diri membersihkan selokan di depan rumah. Itulah cara-cara hidup bersih yang dapat kita lakukan.",
+                options: ["wilayah", "lingkungan", "daerah", "tempat"],
+                answer: 1
+            },
+            {
+                no: 2,
+                question: "Agar lingkungan sehat, hendaknya kita membersihkan halaman rumah dari sampah yang berserakan. Antonim kata <em>membersihkan</em> adalah .....",
+                options: ["mengotori", "membuat", "menyapu", "mengilapkan"],
+                answer: 0
+            },
+            {
+                no: 3,
+                question: "Di Jalan Gus Dur terdapat berbagai macam pertokoan. Ada toko Prambanan yang berjualan meubel. Toko Mulur yang berjualan bahan dan alat-alat bangunan. Top Cell berjualan handphone. Ada pula toko Busana yang menyediakan berbagai model baju. Berdasarkan paragraf di atas, jika kita akan membeli paku informasi tentang tokonya berada pada kalimat ke .....",
+                options: ["satu", "dua", "tiga", "empat"],
+                answer: 1
+            },
+            {
+                no: 4,
+                question: "Kesehatan merupakan anugerah dari Tuhan yang tak ternilai harganya. Oleh karena itu kita sebaiknya berusaha untuk selalu menjaga dan memelihara kesehatan tubuh kita. Tubuh yang sehat dapat kita peroleh dengan cara mengonsumsi makanan bergizi, olahraga teratur, serta menjaga lingkungan agar tetap bersih dan sehat. Bagaimana cara menjaga agar tubuh sehat?",
+                options: [
+                    "Membuang sampah pada tempatnya, mengurangi penggunaan alat transportasi yang dapat mencemari udara.",
+                    "Mengonsumsi makanan yang bergizi, olahraga secara teratur, menjaga lingkungan tetap bersih dan sehat.",
+                    "Menjaga makanan yang sehat dan bergizi, sering-sering mengonsumsi vitamin supaya badan berstamina.",
+                    "Setiap hari berolahraga, mengonsumsi buah-buahan, jangan terlalu banyak mengonsumsi makanan berkabohidrat."
+                ],
+                answer: 1
+            },
+            {
+                no: 5,
+                question: "(1) Penyakit demam berdarah dengue (DBD) merupakan salah satu masalah kesehatan. (2) Apalagi ketika musim penghujan tiba, penyakit DBD cukup tinggi. (3) Sudah sejak lama binatang ini dijadikan bahan pembuatan jamu tradisional. (4) Penyakit ini akan sangat berbahaya ketika menyerang anak. Kalimat yang tidak padu pada paragraf tersebut ditunjukkan dengan nomor .....",
+                options: ["(1)", "(2)", "(3)", "(4)"],
+                answer: 2
+            },
+            {
+                no: 6,
+                question: "Pewawancara : \"Selamat sore, Pak?\" Petani : \"Selamat sore. Ada yang dapat saya bantu?\" Pewawancara : \"Bolehkah saya mewawancarai mengenai hama dan penyakit pada tanaman jagung?\" Petani : \"Boleh. Saya akan menjawab dengan senang hati.\" Pewawancara : \"Terima kasih sebelumnya, Pak. Hama apa saja yang biasanya menyerang tanaman jagung?\" Petani : \"Hama yang menyerang tanaman jagung sebenarnya banyak. Contohnya ada ulat tanah, ulat grayak, belalang daun, wereng, dan masih banyak yang lainnya.\" Pewawancara : \"Bagaimana cara Bapak mengatakan hama pada jagung tersebut?\" Petani : \"Salah satu caranya yaitu dengan menyemprotkan pestisida.\" Pewawancara : \"Selain hama apakah ada penyakit yang dapat menyerang tanaman jagung?\" Petani : \"Selain hama, pasti ada juga penyakit yang menyerang jagung. Contohnya penyakit bulai, bercak daun, penyakit gosong bengkak dan busuk biji.\" Topik teks wawancara tersebut adalah ....",
+                options: ["pekerjaan petani jagung", "pengalaman menanam jagung", "membasmi hama tanaman jagung", "hama dan penyakit tanaman jagung"],
+                answer: 3
+            },
+            {
+                no: 7,
+                question: "Pada era globalisasi semua orang menginginkan produk HP yang berkualitas dan menggunakan teknologi canggih pastinya. Di toko elektronik online ini contohnya, di sini kami menyediakan dan menjual berbagai macam tipe HP. HP yang kami jual memiliki fitur-fitur canggih yang banyak manfaatnya untuk masa kini. Dengan berbagai macam pilihan HP, anda jangan bingung untuk memilihnya. Oleh karena itu anda jangan canggung untuk sekedar mencari informasi HP yang kami tawarkan ini, anda bisa langsung komen saja nanti anda tunggu balasan dari kami. Pernyataan yang sesuai dengan isi teks iklan tersebut adalah ....",
+                options: ["HP yang disediakan adalah HP yang terbaru.", "HP ini hanya dijual di toko elektronik kami.", "Anda dapat menawar harga HP secara online.", "Toko kami melayani penjualan HP secara online."],
+                answer: 3
+            },
+            {
+                no: 8,
+                question: "Hanun : \"Nin, kamu sudah mendengar kabar kalau Lia sakit?\" Nindi : \"Belum, memangnya Lia sakit apa Nun?\" Hanun : \"Katanya sakit tipes. Kita jenguk Lia yuk, Nin!\" Nindi : \"Ayo, kamu kerumahku ya, Nun!\" Hanun : \"Iya, nanti pulang sekolah aku ke rumahmu.\" Topik percakapan tersebut adalah....",
+                options: ["Kabar tentang Lia sakit.", "Penyakit yang di derita Lia.", "Rencana Hanun ke rumah Nindi.", "Rencana menjenguk Lia."],
+                answer: 3
+            },
+            {
+                no: 9,
+                question: "Belakangan banyak siswa SD Mutiara yang tidak masuk sekolah. Kebanyakan dari mereka menderita sakit flu. Salah satu siswa yang bernama Santi menceritakan hal tersebut kepada ibunya. Menurut ibu penyakit flu dapat menyerang siapa saja, apalagi mereka yang daya tahan tubuhnya menurun. Salah satu langkah mencegah tertular flu yaitu berolah raga teratur, dan makan makanan yang bergizi. Simpulan paragraf tersebut adalah ....",
+                options: [
+                    "Rajin berolahraga dan makan makanan bergizi adalah salah satu cara mencegah tertular flu.",
+                    "Flu dapat menyerang orang yang daya tahan tubuhnya menurun.",
+                    "Teman Santi banyak yang tidak masuk sekolah karena sakit flu.",
+                    "Banyak siswa SD Mutiara yang daya tahan tubuhnya menurun."
+                ],
+                answer: 0
+            },
+            {
+                no: 10,
+                question: "Warga Desa Sukamaju kurang menjaga kebersihan lingkungan sekitar. Mereka membuang sampah sembarangan. Banyak sampah yang menumpuk sehingga menjadi sarang lalat dan nyamuk. Bahkan kebutuhan MCK pun kurang di perhatikan. Sumber air bersih sulit di dapatkan untuk MCK mereka hanya memanfaatkan sungai yang ada. Peristiwa yang akan terjadi berkaitan dengan teks tersebut adalah ....",
+                options: ["Warga di pastikan akan mendapat bantuan pemerintah.", "Warga akan mudah terserang penyakit.", "Lingkungan akan tetap alami.", "Sungai akan menjadi fasilitas utama warga."],
+                answer: 1
+            },
+            {
+                no: 11,
+                question: "<strong>Teks 1:</strong> Keberadaan lingkungan sekolah menjadi tanggung jawab semua warga sekolah. Jika lingkungan sekolah bersih maka siswa dapat belajar dengan nyaman. Selain kegiatan belajar berjalan nyaman, warga sekolah juga tidak perlu khawatir terserang penyakit saat lingkungan sudah bersih.<br><br><strong>Teks 2:</strong> Rani adalah siswa yang rajin. Rani sangat mencintai kebersihan. Rumah Rani selalu bersih, setiap hari ia menyapu halaman dan membereskan rumah. Teman Rani selalu betah jika bermain ke rumahnya. Menurut temannya rumah Rani sangat nyaman dan asri karena kebersihan rumah Rani terjaga.<br><br>Persamaan kedua teks tersebut adalah ....",
+                options: ["Kedua teks membahas tentang siswa rajin.", "Kedua teks membahas tentang tanggung jawab siswa.", "Kedua teks membahas tentang kegiatan belajar siswa.", "Kedua teks membahas tentang kebersihan lingkungan."],
+                answer: 3
+            },
+            {
+                no: 12,
+                question: "Sepulang sekolah Wahyu membeli jajan di pinggir jalan Ia membeli bakso dan es. Kebetulan cuaca saat itu sangat panas. Wahyu menambahkan banyak sambal kedalam mangkok baksonya. Sesampai dirumah ibu menghidangkan rujak. Wahyu menghabiskan rujak yang disiapkan ibu. Pada pagi harinya Wahyu merasa sakit perut. Ibu segera membawa Wahyu ke dokter. Menurut dokter Wahyu harus dirawat. Wahyu dirawat selama lima hari. Kesimpulan dari cerita tersebut adalah ....",
+                options: [
+                    "Kebiasaan Wahyu makan bakso dan rujak sepulang sekolah mengakibatkan Wahyu sakit perut dan harus dirawat selama lima hari.",
+                    "Makan makanan pedas yang berlebihan menyebabkan Wahyu dirawat di rumah sakit selama lima hari.",
+                    "Ibu tidak mengetahui bahwa Wahyu sudah makan bakso sehingga diam-diam membelikan rujak yang mengakibatkan wahyu sakit perut.",
+                    "Wahyu membeli bakso di pinggir jalan sepulang dari sekolah yang menyebabkan ia sakit perut."
+                ],
+                answer: 1
+            },
+            {
+                no: 13,
+                question: "Sejak seminggu yang lalu ayahku pergi ke Jogjakarta untuk meninjau proyek pembangunan jembatan. Ibu memberi tahu hari ini ayah pulang dari Jogjakarta. Aku tidak sabar menunggu kedatangan ayah. Tepat pukul empat sore, bel berbunyi. Ternyata ayah sudah sampai di depan rumah membawa <u>oleh-oleh</u> makanan kesukaanku yaitu se kotak pia coklat. Hatiku sangat senang. Kata kias yang sesuai untuk menggantikan kata yang bergaris bawah (oleh-oleh) adalah ....",
+                options: ["buah hati", "buah tangan", "hantaran", "buah bibir"],
+                answer: 1
+            },
+            {
+                no: 14,
+                question: "Bel pulang telah berbunyi, semua siswa meninggalkan kelas. Karena terburu-buru, tanpa sengaja Ari menyennggol vas bunga di meja guru hingga jatuh dan pecah. Keesokan harinya, bu guru bertanya kepada seluruh siswa, siapa yang menjauhkan vas bunga di mejanya. Mendengar pertanyaan Bu Guru, Ari hanya diam karena merasa takut. Maksud dari pernyataan pada kalimat ke empat cerita di atas adalah ....",
+                options: ["Ari mencari alasan agar tidak dimarahi oleh bu guru.", "Ari menuduh temannya yang memecahkan vas bunga.", "Ari mengakui kesalahannya dengan berani.", "Ari takut dimarahi gurunya jika mengakui."],
+                answer: 3
+            },
+            {
+                no: 15,
+                question: "Wahai ananda intan di karang,<br>Ikhlaskan hati memaafkan orang,<br>Dendam kesumat hendaklah buang,<br>Hati pemurah hidupmu lapang.<br><br>Maksud syair tersebut adalah ....",
+                options: [
+                    "Sebaiknya kita selalu bersabar dalam setiap keadaan.",
+                    "Orang yang mudah memaafkan orang lain akan masuk surga.",
+                    "Agar kita menjadi orang yang pemaaf dan pemurah di manapun kita berada.",
+                    "Membuang sifat dendam dan selalu bermurah hati membuat hidup lapang."
+                ],
+                answer: 3
+            },
+            {
+                no: 16,
+                question: "Di hutan pinggiran desa, ada seekor kelinci yang sombong. Dia suka mengejek hewan lain yang lebih lemah. Suatu hari, si kelinci berjalan dengan angkuh dan bertemu dengan kura-kura. \"Hei kura-kura, si lambat, kamu jangan jalan aja dong, larilah biar cepat sampai!\" kata kelinci sambil mencibir. \"Biarlah kelinci, memang jalanku lambat, yang penting aku sampai dengan selamat daripada cepat-cepat nanti jatuh dan terluka.\" jawab kura-kura dengan tenang. \"Hei kura-kura! Bagaimana kalau kita adu lari. Kalau kau menang aku akan beri hadiah.\" Sambil tertawa dalam hatinya dia berkata, \"Mana mungkin dia bisa mengalahkanku.\" Karena takut dengan ancaman kelinci, kura-kura mau bertanding. Dengan pelan tapi pasti kura-kura melangkah sekuat tenaga dan mampu melewati kelinci yang sedang tertidur dibawah pohon karena menunggu kura-kura lewat. Penyebab konflik cerita pada teks tersebut adalah...",
+                options: [
+                    "Kelinci dan kura-kura berlomba lari.",
+                    "Kelinci yang menantang kura-kura adu lari.",
+                    "Kura-kura meminta agar kelinci tidak sombong.",
+                    "Kura-kura menjawab cibiran kelinci dengan tenang."
+                ],
+                answer: 1
+            },
+            {
+                no: 17,
+                question: "Tobi adalah sosok katak kecil yang sangat baik, suka menolong dan <em>ramah</em>. Ia suka dan tidak malu untuk membantu setiap hewan yang memerlukan bantuannya. Namun, takdir berbicara lain. Salah satu kakinya cacat terkena runtuhan batu besar ketika ia lari menghindari tembakan pemburu. Makna kata <em>ramah</em> pada teks tersebut adalah ....",
+                options: ["suka menyapa hewan lain", "baik hati dan menarik budi bahasanya", "suka menolong teman-temannya", "tidak mudah marah dan tersinggung"],
+                answer: 1
+            },
+            {
+                no: 18,
+                question: "Palang Merah karya Aninda:<br>Jika terjadi perang, Palang merah sangat berjasa,<br>Menolong orang yang terluka,<br>Tanpa <strong>imbalan</strong> apa-apa.<br>Jika terjadi kecelakaan,<br>Palang merah selalu siaga,<br>Memberi pertolongan tanpa imbalan.<br><br>Makna kata <strong>imbalan</strong> dalam puisi tersebut adalah ....",
+                options: ["bayaran", "ongkos", "balas jasa", "pujian"],
+                answer: 2
+            },
+            {
+                no: 19,
+                question: "Hari ini sedang ulangan matematika. Ia mengerjakan soal ulangan dengan tenang. Meskipun ada soal yang tidak bisa, ia berusaha mengerjakan soal apa adanya dan tetap jujur. Ia tidak mau menyontok pekerjaan temannya. Nilai moral positif dalam cerita tersebut adalah ....",
+                options: ["selalu jujur dalam setiap keadaan.", "selalu belajar dari gigh berusaha.", "yakin akan mampu menyelesaikan ulangan.", "selalu menjadi yang terbaik di antara yang lain."],
+                answer: 0
+            },
+            {
+                no: 20,
+                question: "\"Do, liburan semester ini kamu mau kemana? tanya Farhan.\" \"Em, ke mana ya. Aku belum punya rencana,\"balas Aldo. \"Aku juga mungkin di rumah saja. Liburannya kan cuma satu minggu\" jawab Farhan. Percakapan Aldo dan Farhan terhenti ketika mereka sudah sampai di pintu gerbang sekolah. Itu berarti mereka harus berpisah karena jalan menuju rumah mereka berbeda. Aldo tidak mengetahui jika hari ini pulang pagi. Aldo kemudian pulang naik angkot. Terkadang Aldo pulang bersama teman-temannya. Namun kali ini ia terpaksa pulang sendiri. Sebenarnya Aldo ingin bermain ke rumah Farhan. Tetapi, ia teringat pesanya Pak Agus, guru agamanya. Ia harus pulang ke rumah terlebih dahulu dan tidak boleh nampir ke rumah teman. Sikap yang menunjukkan keteladanan tokoh Aldo adalah ....",
+                options: ["Aldo bersikap akrab dengan temannya.", "Aldo disiplin terhadap waktu.", "Aldo adalah anak yang sederana.", "Aldo patuh terhadap nasihat gurunya."],
+                answer: 3
+            },
+            {
+                no: 21,
+                question: "Hujan sudah lama tidak turun. Seorang kakek berambut putih, berjanggut panjang, dan bertongkat memasuki sebuah desa. Kakek itu berasal dari Gunung Karang. Ia telah berjalan begitu jauh. Setiap kali ia meminta air minum di desa yang didatanginya, selalu dijawab tidak ada. Kakek itu tidak memaksa. Ia meneruskan langkahnya. Kini, ia kembali ke sebuah desa. Sambil melepas lelah, kakek itu duduk di rerumputan. Matanya memperhatikan seorang petani yang sedang mencangkul sawahnya. Sawah itu kering kerontang. Sinar matahari begitu menyengat. Tanahnya terbelah-belah. Petani itu menghentikan pekerjaannya. Ia menghampiri si kakek. \"Kakek haus?\" sapanya. Kakek itu mengangguk pelan. Si petani mengambil kendinya yang berisi air dan memberikannya kepada si kakek. Amanat yang terkandung dalam cerita tersebut adalah ....",
+                options: [
+                    "segala cobaan harus dijalani dengan senang hati.",
+                    "orang tua harus bersabar dengan berbagai cobaan.",
+                    "sebaiknya kita berhati-hati terhadap orang yang baru dikenal.",
+                    "kita harus menolong orang yang membutuhkan."
+                ],
+                answer: 3
+            },
+            {
+                no: 22,
+                question: "Sampah merupakan sumber penyakit. Banyak penduduk yang tinggal di daerah sekitar Tempat Pembuangan Akhir (TPA) menderita penyakit. Ada yang terkena infeksi saluran pernapasan, infeksi perut, dan lain-lain. Penyebabnya adalah tumpukan sampah di TPA tersebut belum dikelola dengan baik. Sampah yang dibuang sembarangan juga dapat mengakibatkan banjir pada musim penghujan. Sampah menutup saluran-saluran air sehingga air tidak dapat mengalir dengan lancar. Tema bacaan di atas adalah ....",
+                options: ["lingkungan", "hidup sehat", "teknologi", "cinta tanah air"],
+                answer: 0
+            },
+            {
+                no: 23,
+                question: "Aldi adalah seorang juara kelas. Dia sangat rajin belajar. Tugas-tugas yang diberikan guru di kelasnya selalu dikerjakan dengan baik. Nilai-nilai yang ia dapat selalu memuaskan. Hari ini di kelas Aldi akan diadakan ulangan harian. Seketika Aldi tampak gelisah. Kemarin dia menonton bola sampai malam dan tidak belajar karena mengantuk. Peristiwa yang mungkin dialami Aldi berdasarkan cerita di atas adalah ....",
+                options: ["Aldi mudah menggerakkan ulangan.", "Aldi mendapat nilai kurang memuaskan.", "Aldi mendapat nilai yang memuaskan.", "Aldi menyelesaikan ulangan dengan cepat."],
+                answer: 1
+            },
+            {
+                no: 24,
+                question: "Banyak pelanggan PLN mengeluhkan ... listrik yang tak stabil. Tegangan yang sering turun ini membuat alat-alat elektronik tak bekerja dengan baik, AC jadi kurang dingin, pengisian baterai ponsel jadi lebih lama, dan sebagainya. Istilah yang tepat untuk melengkapi paragraf rumpang tersebut adalah ....",
+                options: ["konseling", "ambil", "PJU", "voltase"],
+                answer: 3
+            },
+            {
+                no: 25,
+                question: "Pencuci itu mengambil ... setelah perbuatannya diketahui polisi. Ungkapan yang tepat untuk melengkapi kalimat tersebut adalah ....",
+                options: ["panjang tangan", "bintang kelas", "langkah seribu", "tanpa kata"],
+                answer: 2
+            },
+            {
+                no: 26,
+                question: "Pak Toni adalah seorang pedagang di Pasar Legi. Dia selalu berangkat ke pasar pukul 05.00 WIB. Waktu yang ditempuh Pak Toni setiap hari adalah 1 jam perjalanan dari rumah menuju pasar. Setiap hari Pak Toni melewati rumah pedagang lainnya yang bernama Pak Santo 15 menit setelah perjalanan dari rumahnya tepatnya pukul ...(1) WIB. Mereka kemudian berangkat bersama ke pasar. Berdasarkan teks di atas, waktu yang tepat untuk mengisi nomor (1) adalah .....",
+                options: ["05.00 dan 06.00", "05.00 dan 05.15", "05.15 dan 06.00", "05.00 dan 06.15"],
+                answer: 2
+            },
+            {
+                no: 27,
+                question: "(1) Putar tombol pengatur panas sesuai jenis kain. (2) Setelah digunakan, letakan setrika pada tatakan agar tidak terjadi bahaya terbakar. (3) Rapikan baju yang telah kering. (4) Gosok setrika pada bagian baju yang kusut perlahan-lahan. (5) Tancapkan steker pada lubang listrik. Urutan yang paling tepat penggunaan setrika listrik tersebut adalah ....",
+                options: ["(5) - (1) - (3) - (4) - (2)", "(4) - (3) - (5) - (1) - (2)", "(2) - (4) - (1) - (3) - (5)", "(1) - (2) - (3) - (4) - (5)"],
+                answer: 0
+            },
+            {
+                no: 28,
+                question: "Dalam sambutan ini, saya mengajak rekan-rekan untuk mengikuti kegiatan wisata ilmiah ini dengan baik. Mudah-mudahan ilmu yang kita peroleh dapat dimanfaatkan di kemudian hari. Demikian sambutan dari saya selaku perwakilan siswa Kelas VI. ... Atas perhatian Bapak, Ibu, serta rekan-rekan, saya ucapkan terima kasih. Kalimat penutup yang tepat untuk melengkapi teks pidato rumpang tersebut adalah ....",
+                options: [
+                    "Mohon maaf atas segala kekurangan.",
+                    "Tujuan dari kegiatan ini adalah untuk meningkatkan pemahaman siswa.",
+                    "Kita ucapkan puji syukur ke Hadirat Tuhan YME.",
+                    "Acara ini diselenggarakan pada Hari Minggu 22 Januari 2017."
+                ],
+                answer: 0
+            },
+            {
+                no: 29,
+                question: "(1) Warnailah topeng sehingga tampak menarik. (2) Buatlah dua lubang pada bagian mata. (3) Topeng siapa digunakan. (4) Buatlah sketsa wajah pada scelmerk karton. (5) Lubangi sisi kiri dan kanan topeng, lalu pasanglah tali. (6) Guntinglah sketsa wajah yang sudah dibuat. Susunan yang benar petunjuk membuat topeng di atas adalah ....",
+                options: ["(4), (6), (2), (1), (3), (5)", "(4), (2), (1), (3), (6), (5)", "(4), (6), (2), (5), (1), (3)", "(4), (2), (5), (1), (6), (3)"],
+                answer: 0
+            },
+            {
+                no: 30,
+                question: "Saat musim penghujan, sampah yang dibuang ke selokan akan .... saluran dan dapat mengakibatkan banjir. Kata yang tepat untuk melengkapi kalimat di atas adalah ....",
+                options: ["tersumbat", "tersumbatkan", "penyumbat", "menyumbat"],
+                answer: 3
+            },
+            {
+                no: 31,
+                question: "Sejak tadi dia kelihatan <em>garuk-garuk</em> kepalanya. Perbaikan penggunaan kata bercetak miring pada kalimat tersebut adalah ....",
+                options: ["bergaruk-garuk", "garuk-garukan", "menggaruk-garuk", "menggaruk-garukan"],
+                answer: 2
+            },
+            {
+                no: 32,
+                question: "(1) Umumnya mereka datang bersama keluarga atau teman. (2) Taman ini memiliki daya tarik berupa keindahan alam pedesaan. (3) Taman Agro Jombang merupakan salah satu tempat wisata baru di kota Jombang. (4) Banyak pengunjung hilir mudik setiap harinya. Susunan kalimat yang tepat agar menjadi paragraf padu adalah ....",
+                options: ["(4), (1), (3), (2)", "(4), (3), (2), (1)", "(3), (4), (1), (2)", "(3), (2), (4), (1)"],
+                answer: 3
+            },
+            {
+                no: 33,
+                question: "\"Kapan bukuku kamu kembalikan?\" tanya Dani. Penulisan tanda baca yang salah pada kalimat di atas adalah ....",
+                options: [
+                    "Penggunaan tanda tanya pada kalimat langsung.",
+                    "Penggunaan tanda titik di akhir kalimat.",
+                    "Penggunaan tanda koma setelah kalimat langsung.",
+                    "Penggunaan tanda petik pada kalimat langsung."
+                ],
+                answer: 1
+            },
+            {
+                no: 34,
+                question: "Difteri merupakan penyakit ... yang memiliki gejala seperti penyakit flu. Penggunaan kata berimbuhan yang tepat untuk melengkapi kalimat di atas adalah ....",
+                options: ["mematikan", "kematian", "dimatikan", "pematian"],
+                answer: 0
+            },
+            {
+                no: 35,
+                question: "Sejak pagi dia ... kebingungan mencari sepatunya yang hilang. Penggunaan kata ulang yang tepat untuk melengkapi kalimat di atas adalah....",
+                options: ["mondar-mondar", "mandar-mandir", "mondar-mandir", "mandar-mondar"],
+                answer: 2
+            },
+            {
+                no: 36,
+                question: "Doni : \" Hai, Reza (...) Apakah kamu sudah menyelesaikan tugas kelompok?\" Reza : \" Belum (...) Don. Aku baru pulang dari rumah kakek.\" Tanda baca yang tepat untuk melengkapi dialog di atas adalah ....",
+                options: ["titik (.) dan koma (,)", "tanda seru (!) dan koma (,)", "tanda tanya (?) dan koma (,)", "tanda tanya (?) dan titik (.)"],
+                answer: 1
+            },
+            {
+                no: 37,
+                question: "Kalimat berikut yang menggunakan huruf kapital dengan benar adalah ....",
+                options: [
+                    "Sejumlah organisasi yang tergabung dalam Jaringan Pemerhati perubahan undang-undang Kesehatan menyatakan keprihatinan.",
+                    "Sejumlah organisasi yang tergabung dalam Jaringan Pemerhati Perubahan Undang-Undang Kesehatan menyatakan keprihatinan.",
+                    "Sejumlah Organisasi yang tergabung dalam Jaringan Pemerhati Perubahan Undang-Undang Kesehatan menyatakan keprihatinan.",
+                    "Sejumlah organisasi yang tergabung dalam Jaringan Pemerhati Perubahan Undang-Undang Kesehatan menyatakan keprihatinan."
+                ],
+                answer: 3
+            },
+            {
+                no: 38,
+                question: "Rudi berhati baja, seakan ia tidak ... dengan ejekan temannya sebagai anak yatim. Kata baku yang tepat untuk melengkapi kalimat tersebut adalah ....",
+                options: ["ferduli", "peduli", "perduli", "feduli"],
+                answer: 1
+            },
+            {
+                no: 39,
+                question: "Hari rabu pak Ahmad mengunjungi saudaranya di pulau Bali. Perbaikan ejaan pada kalimat di atas adalah ....",
+                options: [
+                    "Hari rabu Pak Ahmad mengunjungi saudaranya di pulau Bali.",
+                    "Hari rabu Pak Ahmad mengunjungi saudaranya di Pulau Bali.",
+                    "Hari Rabu Pak Ahmad mengunjungi saudaranya di Pulau Bali.",
+                    "Hari Rabu pak Ahmad mengunjungi saudaranya di Pulau Bali."
+                ],
+                answer: 2
+            },
+            {
+                no: 40,
+                question: "Awal bulan ini keluarga Vita pindah ke Jombang. <u>mereka tinggal di jalan patimura 10.</u> Keluarga Vita mengundang tetangga sekitar rumah untuk menghadiri acara syukurannya. Vita senang berkenalan dengan tetangga. Ia mendapat banyak teman baru. Perbaikan kalimat yang bergaris bawah adalah ....",
+                options: [
+                    "mereka tinggal di Jalan Pattimura 10.",
+                    "mereka tinggal di jalan Pattimura 10.",
+                    "Mereka tinggal di jalan Pattimura 10.",
+                    "Mereka tinggal di Jalan Pattimura 10."
+                ],
+                answer: 3
+            },
+            {
+                no: 41,
+                type: "esai",
+                question: "Bacalah penggalan cerita berikut!<br><br>Konon dikisahkan hiduplah seorang janda di tepi hutan, ditemani anak perempuan semata wayang bernama Sekepel. Disebut Sekepel, karena anak itu besarnya hanya segenggaman tangan. Sepintas seperti boneka mainan. Tetangga kiri kanan sangat sayang kepada Sekepel. Setiap ada yang punya hajat, entah diminta atau tidak Sekepel dengan senang hati mengulurkan tangan.<br><br>Setiap hari rutinitas yang dilakukan janda tersebut adalah berjualan daun ke pasar. Dari keuntungan penjualan daun yang tidak seberapa, dikumpulkannya sekeping demi sekeping, sebagai persiapan buat masa depan putri satu-satunya.<br><br>Tentukan latar, tokoh dan watak tokoh cerita di atas!",
+                keywords: ["tepi hutan", "janda", "sekepel", "baik hati", "penyayang", "dermawan", "hemat", "rajin"],
+                minMatch: 4,
+                hint: "Sebutkan: (1) Latar/tempat, (2) Nama tokoh, (3) Sifat/watak tokoh",
+                maxScore: 10,
+                correctAnswer: "Latar: tepi hutan dan pasar. Tokoh: Janda (ibu) dan Sekepel (anak). Watak: Janda adalah penyayang, rajin, dan hemat. Sekepel adalah baik hati, penyayang, dan dermawan."
+            },
+            {
+                no: 42,
+                type: "esai",
+                question: "Perbaikilah penulisan percakapan berikut!<br><br>Edo : Sejak pagi, kamu terlihat lesu, din.<br>Udin : Kepalaku pusing.<br>Edo : Apa kamu belum sarapan.<br>Udin : Ya, aku belum sarapan.",
+                keywords: ["tanda tanya", "titik", "koma", "tanda seru", "tanda petik", "halo", "udin", "edo", "dinding", "perut"],
+                minMatch: 3,
+                hint: "Perhatikan: tanda baca akhir kalimat (titik, tanda tanya, tanda seru)",
+                maxScore: 10,
+                correctAnswer: "Edo : \"Halo, Din. Sejak pagi, kamu terlihat lesu.\"<br>Udin : \"Kepalaku pusing, Do.\"<br>Edo : \"Apa kamu belum sarapan?\"<br>Udin : \"Ya, aku belum sarapan.\""
+            },
+            {
+                no: 43,
+                type: "esai",
+                question: "Perhatikan dialog berikut!<br><br>Luna : \"Tita, ayo, kita ikut les menari di Sanggar Nusantara!\"<br>Tita : \"Latihannya hari apa saja, Lun?\"<br>Luna : \"Setiap hari Selasa dan Kamis.\"<br>Tita : \"Siapa saja teman-teman yang ikut?\"<br>Luna : \"Maya, Rani, dan Lusi. Tempatnya di jalan Flamboyan. Kita bisa berangkat bersama-sama.\"<br>Tita : \"Baiklah, kalau begitu. Aku minta izin dulu kepada ibuku.\"<br>Luna : \"Oke. Beri tahu aku, ya, kalau kamu mau ikut bergabung.\"<br>Tita : \"Oke, Tita.\"<br><br>Ubahlah dialog tersebut menjadi narasi!",
+                keywords: ["luna", "tita", "les menari", "sanggar nusantara", "selasa", "kamis", "narasi", "bertanya", "menjawab", "mengajak"],
+                minMatch: 4,
+                hint: "Ubah menjadi paragraf cerita (menggunakan kata 'kata', 'bertanya', 'menjawab', dll)",
+                maxScore: 10,
+                correctAnswer: "Luna mengajak Tita untuk ikut les menari di Sanggar Nusantara. Tita bertanya tentang jadwal latihan. Luna menjawab bahwa latihan diadakan setiap hari Selasa dan Kamis. Tita bertanya siapa saja yang ikut. Luna menyebutkan Maya, Rani, dan Lusi. Tempatnya di jalan Flamboyan dan mereka bisa berangkat bersama-sama. Tita setuju dan akan minta izin kepada ibunya terlebih dahulu. Luna meminta Tita memberi tahu jika ingin bergabung."
+            },
+            {
+                no: 44,
+                type: "esai",
+                question: "Cermati paragraf berikut!<br><br>Minggu yang lalu Si Monyet sedang mencuri pisang di kebun Pak Tani. Ketika Si Monyet sedang pesta makan pisang di atas pohon, Pak Tani datang. Pak Tani melihat Si Monyet kelakuan marah. Pak Tani langsung menebang pohon.<br><br>Pada paragraf tersebut terdapat kalimat yang berpola/susunannya salah. Tulislah dan perbaikilah menjadi kalimat yang benar!",
+                keywords: ["pak tani", "marah", "melihat", "monyet", "kalimat", "salah", "perbaikan", "struktur", "pesta"],
+                minMatch: 3,
+                hint: "Cari kalimat yang susunannya aneh (subjek, predikat, objek), lalu tulis perbaikannya",
+                maxScore: 10,
+                correctAnswer: "Kalimat yang salah: 'Pak Tani melihat Si Monyet kelakuan marah.'<br>Perbaikan: 'Pak Tani melihat kelakuan Si Monyet yang kurang baik.' atau 'Pak Tani marah melihat Si Monyet.'"
+            },
+            {
+                no: 45,
+                type: "esai",
+                question: "Perhatikan kalimat berikut ini dengan cermat!<br><br><strong>Budaya hidup yang sangat bersih sekali dan sehat akan mendatangkan banyak manfaat-manfaat bagi diri sendiri dan lingkungan sekitar.</strong><br><br>Perbaikilah kalimat tersebut agar menjadi kalimat yang lebih efektif!",
+                keywords: ["budaya", "bersih", "sehat", "manfaat", "efektif", "sangat", "sekali", "banyak", "reduplikasi", "hapus"],
+                minMatch: 3,
+                hint: "Perhatikan: kata 'sangat' dan 'sekali' (pilih satu), kata 'banyak' dan 'manfaat-manfaat'",
+                maxScore: 10,
+                correctAnswer: "Budaya hidup yang bersih dan sehat akan mendatangkan banyak manfaat bagi diri sendiri dan lingkungan sekitar. (Hapus kata 'sangat' dan 'sekali', hapus reduplikasi 'manfaat-manfaat')"
+            }
+        ];
+
+        let currentQuestion = 0;
+        let userAnswers = [];
+        let studentName = '';
+
+        function startQuiz() {
+            studentName = document.getElementById('studentName').value.trim();
+            if (!studentName) {
+                alert('Silakan masukkan nama kamu terlebih dahulu!');
+                return;
+            }
+            document.getElementById('startScreen').classList.remove('active');
+            document.getElementById('quizScreen').classList.add('active');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('questionNumber').textContent = `Soal ${question.no} dari ${questions.length}`;
+            document.getElementById('questionText').innerHTML = question.question;
+            
+            const isEssay = question.type === 'esai';
+            
+            if (isEssay) {
+                // Render essay input
+                const essayHtml = `
+                    <div class="essay-box">
+                        <textarea id="essayAnswer" rows="6" placeholder="Tulis jawaban kamu di sini..."></textarea>
+                        <div class="essay-hint">
+                            <strong>Petunjuk:</strong> ${question.hint}
+                        </div>
+                        <button class="btn-submit-essay" onclick="submitEssay()">Periksa Jawaban</button>
+                    </div>
+                `;
+                document.getElementById('options').innerHTML = essayHtml;
+                document.getElementById('feedback').classList.remove('show');
+                document.getElementById('btnNext').disabled = true;
+            } else {
+                // Render multiple choice options
+                const optionsHtml = question.options.map((option, index) => `
+                    <div class="option" onclick="selectOption(${index})" data-index="${index}">
+                        <span class="option-letter">${String.fromCharCode(65 + index)}</span>
+                        <span>${option}</span>
+                    </div>
+                `).join('');
+                
+                document.getElementById('options').innerHTML = optionsHtml;
+                document.getElementById('feedback').classList.remove('show');
+                document.getElementById('btnNext').disabled = true;
+            }
+            
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+        }
+
+        function normalizeText(text) {
+            return text
+                .toLowerCase()
+                .trim()
+                .replace(/\s+/g, ' ')
+                .replace(/[.,!?;:'"]/g, '');
+        }
+
+        function submitEssay() {
+            const question = questions[currentQuestion];
+            const answerText = document.getElementById('essayAnswer').value;
+            const feedback = document.getElementById('feedback');
+            const btnNext = document.getElementById('btnNext');
+            
+            if (!answerText.trim()) {
+                alert('Silakan tulis jawaban terlebih dahulu!');
+                return;
+            }
+            
+            const normalizedAnswer = normalizeText(answerText);
+            const matchedKeywords = question.keywords.filter(kw => normalizedAnswer.includes(normalizeText(kw)));
+            const isCorrect = matchedKeywords.length >= question.minMatch;
+            
+            const textarea = document.getElementById('essayAnswer');
+            textarea.disabled = true;
+            
+            const submitBtn = document.querySelector('.btn-submit-essay');
+            submitBtn.disabled = true;
+            
+            if (isCorrect) {
+                feedback.className = 'feedback correct show';
+                feedback.innerHTML = `✅ Bagus! Jawaban kamu mengandung ${matchedKeywords.length} kata kunci yang tepat. (${matchedKeywords.join(', ')})`;
+            } else {
+                feedback.className = 'feedback wrong show';
+                feedback.innerHTML = `⚠️ Jawaban belum lengkap. Terdeteksi ${matchedKeywords.length} dari ${question.minMatch} kata kunci yang dibutuhkan.<br>Kata kunci yang terdeteksi: ${matchedKeywords.length > 0 ? matchedKeywords.join(', ') : 'belum ada'}`;
+            }
+            
+            userAnswers[currentQuestion] = {
+                selected: answerText,
+                correct: question.keywords.join(', '),
+                isCorrect: isCorrect,
+                matchedKeywords: matchedKeywords,
+                type: 'esai'
+            };
+            
+            btnNext.disabled = false;
+        }
+
+        function selectOption(index) {
+            const options = document.querySelectorAll('.option');
+            const feedback = document.getElementById('feedback');
+            const btnNext = document.getElementById('btnNext');
+            
+            options.forEach(opt => {
+                opt.style.pointerEvents = 'none';
+                opt.classList.remove('selected');
+            });
+            
+            options[index].classList.add('selected');
+            
+            const question = questions[currentQuestion];
+            const isCorrect = index === question.answer;
+            
+            if (isCorrect) {
+                options[index].classList.add('correct');
+                feedback.className = 'feedback correct show';
+                feedback.innerHTML = '✅ Benar! Jawaban kamu tepat.';
+            } else {
+                options[index].classList.add('wrong');
+                options[question.answer].classList.add('correct');
+                feedback.className = 'feedback wrong show';
+                feedback.innerHTML = `❌ Salah! Jawaban yang benar adalah <strong>${String.fromCharCode(65 + question.answer)}. ${question.options[question.answer]}</strong>`;
+            }
+            
+            userAnswers[currentQuestion] = {
+                selected: index,
+                correct: question.answer,
+                isCorrect: isCorrect,
+                type: 'pg'
+            };
+            
+            btnNext.disabled = false;
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('quizScreen').classList.remove('active');
+            document.getElementById('resultScreen').classList.add('active');
+            
+            const pgQuestions = questions.filter(q => q.type !== 'esai');
+            const essayQuestions = questions.filter(q => q.type === 'esai');
+            
+            const pgCorrect = userAnswers.filter((a, i) => a && a.isCorrect && questions[i].type !== 'esai').length;
+            const essayCorrect = userAnswers.filter((a, i) => a && a.isCorrect && questions[i].type === 'esai').length;
+            
+            const totalCorrect = pgCorrect + essayCorrect;
+            const score = Math.round((totalCorrect / questions.length) * 100);
+            
+            document.getElementById('scoreValue').textContent = score;
+            document.getElementById('correctCount').textContent = totalCorrect;
+            document.getElementById('wrongCount').textContent = questions.length - totalCorrect;
+            document.getElementById('totalCount').textContent = questions.length;
+            
+            let message = '';
+            if (score >= 90) {
+                message = `🌟 Luar biasa, ${studentName}! Pintar sekali!`;
+            } else if (score >= 75) {
+                message = `👏 Bagus, ${studentName}! Pertahankan prestasimu!`;
+            } else if (score >= 60) {
+                message = `💪 Semangat, ${studentName}! Masih bisa lebih baik!`;
+            } else {
+                message = `📚 Terus belajar ya, ${studentName}! Jangan menyerah!`;
+            }
+            document.getElementById('resultMessage').textContent = message;
+        }
+
+        function showReview() {
+            document.getElementById('resultScreen').classList.remove('active');
+            document.getElementById('reviewScreen').classList.add('active');
+            
+            const reviewList = document.getElementById('reviewList');
+            reviewList.innerHTML = questions.map((q, i) => {
+                const answer = userAnswers[i];
+                if (!answer) return '';
+                
+                const isCorrect = answer.isCorrect;
+                const isEssay = answer.type === 'esai' || q.type === 'esai';
+                
+                if (isEssay) {
+                    // Essay review
+                    const userAnswerText = answer.selected || 'Tidak dijawab';
+                    const matchedKws = answer.matchedKeywords || [];
+                    
+                    return `
+                        <div class="review-item ${isCorrect ? 'correct' : 'wrong'}">
+                            <div class="review-header">
+                                <span class="review-number">Soal ${q.no} (Esai)</span>
+                                <span class="review-status ${isCorrect ? 'correct' : 'wrong'}">${isCorrect ? '✓ Memenuhi' : '✗ Kurang Lengkap'}</span>
+                            </div>
+                            <div class="review-question">${q.question}</div>
+                            <div class="review-answer">
+                                <div><span class="label">Jawaban kamu:</span></div>
+                                <div class="review-essay-answer">"${userAnswerText}"</div>
+                                <div style="margin-top: 15px; padding: 12px; background: #e8f5e9; border-radius: 8px; border-left: 4px solid #4CAF50;">
+                                    <div><span class="label" style="color: #2e7d32;">✓ Jawaban yang benar:</span></div>
+                                    <div style="margin-top: 8px; color: #333; line-height: 1.6;">${q.correctAnswer}</div>
+                                </div>
+                                <div style="margin-top: 10px;">
+                                    <span class="label">Kata kunci terdeteksi:</span> 
+                                    <span class="value ${isCorrect ? 'correct' : 'wrong'}">${matchedKws.length > 0 ? matchedKws.join(', ') : 'Tidak ada'}</span>
+                                    <span style="color: #666;">(${matchedKws.length}/${q.minMatch} minimum)</span>
+                                </div>
+                                <div style="margin-top: 8px; color: #666; font-size: 13px;">
+                                    <span class="label">Kata kunci yang diharapkan:</span> ${q.keywords.slice(0, 5).join(', ')}...
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Multiple choice review
+                    const userAnswer = q.options[answer.selected];
+                    const correctAnswer = q.options[q.answer];
+                    
+                    return `
+                        <div class="review-item ${isCorrect ? 'correct' : 'wrong'}">
+                            <div class="review-header">
+                                <span class="review-number">Soal ${q.no}</span>
+                                <span class="review-status ${isCorrect ? 'correct' : 'wrong'}">${isCorrect ? '✓ Benar' : '✗ Salah'}</span>
+                            </div>
+                            <div class="review-question">${q.question}</div>
+                            <div class="review-answer">
+                                <div><span class="label">Jawaban kamu:</span> <span class="value ${isCorrect ? 'correct' : 'wrong'}">${userAnswer}</span></div>
+                                ${!isCorrect ? `<div><span class="label">Jawaban benar:</span> <span class="value correct">${correctAnswer}</span></div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+            }).join('');
+        }
+
+        function backToResult() {
+            document.getElementById('reviewScreen').classList.remove('active');
+            document.getElementById('resultScreen').classList.add('active');
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            userAnswers = [];
+            studentName = '';
+            document.getElementById('studentName').value = '';
+            document.getElementById('resultScreen').classList.remove('active');
+            document.getElementById('startScreen').classList.add('active');
+        }
+    </script>
+</body>
+</html>
